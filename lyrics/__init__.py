@@ -48,6 +48,14 @@ def search(artist, title):
         return []
 
     data = list(map(get_lyrics_from_link, list(filter(lambda x: "http" in x, [a.get("href") for a in links]))))
+
+    if not data:
+        r = requests.get("https://www.lyricsmode.com/lyrics/a/{artist}/{title}.html".format(artist=artist.replace(' ', '_'), title=title.replace(' ', '_')), headers=HEADERS)
+        doc = BeautifulSoup(r.text, 'html.parser')
+        div = doc.select_one("#lyrics_text")
+        data = div.text if div else None
+        data = { 'lyrics': data } if data else []
+
     cache[h] = data
 
     return data
